@@ -124,6 +124,7 @@ function renderBreweryCard(brewery) {
 
 const addListeners = () => {
 
+  // form submit
   stateForm.addEventListener('submit', event => {
     event.preventDefault()
     const byState = event.target[0].value
@@ -137,18 +138,21 @@ const addListeners = () => {
       })
   })
 
+  // Drop down
   filterByType.addEventListener('change', event => {
     state.filterByType = event.target.value
     
     render()
   })
 
+  // text input
   filterByName.addEventListener('input', event => {
     state.filterByName = event.target.value
 
     render()
   })
 
+  // checkbox
   filterByCityClearBtn.addEventListener('click', event => {
     state.filterByCities = []
     filterByCityForm.reset()
