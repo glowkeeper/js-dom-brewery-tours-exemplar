@@ -1,3 +1,8 @@
+/**
+ * This solution scales to as many brewery types as required
+ */
+
+
 const stateForm = document.querySelector('#select-state-form')
 const breweriesList = document.querySelector('#breweries-list')
 const filterByType = document.querySelector('#filter-by-type')
@@ -13,7 +18,7 @@ const phone = 'Phone:'
 const visit = 'Visit Website'
 
 const state = {
-  types: ['micro', 'regional', 'brewpub', 'planning'],
+  types: ['micro', 'regional', 'brewpub'],
   breweries: {},
   filterByType: '',
   filterByName: '',
@@ -35,7 +40,7 @@ function renderBreweries() {
 
 function renderCityFilters() {
   const breweries = applyFilters()
-  const cities = [...new Set(breweries.map(brewery => brewery.city))]
+  const cities = [...new Set(breweries.map(brewery => brewery.city))] // unique cities
 
   filterByCityForm.innerHTML = ''
   cities.forEach(city => {
@@ -47,7 +52,7 @@ function renderCityFilters() {
     const label = document.createElement('label')
     label.setAttribute('for', city)
     label.innerText = city
-    
+
     input.addEventListener('change', event => {
       if (event.target.checked) {
         state.filterByCities.push(city)
@@ -64,11 +69,12 @@ function renderCityFilters() {
 }
 
 function applyFilters() {
-  
-  breweries = Object.keys(state.breweries).map(breweryType => state.breweries[breweryType]).flat()
-  
+
+  let breweries
   if (state.filterByType) {
     breweries = state.breweries[state.filterByType]
+  } else {
+    breweries = Object.keys(state.breweries).map(breweryType => state.breweries[breweryType]).flat()
   }
 
   if (state.filterByName) {
@@ -131,17 +137,19 @@ const addListeners = () => {
     fetch(`${url}?by_state=${byState}&per_page=${perPage}`)
       .then(res => res.json())
       .then(data => {
+
         state.types.forEach(type => {
           state.breweries[type] = data.filter(brewery => brewery.brewery_type === type)
         })
+
         render()
       })
   })
 
-  // Drop down
+  // drop down select options
   filterByType.addEventListener('change', event => {
     state.filterByType = event.target.value
-    
+
     render()
   })
 
