@@ -101,7 +101,7 @@ function doFiltering ( filterKey, breweryKey, breweries ) {
       });
     })
   }
-  
+
   return breweries
 }
 
@@ -116,7 +116,7 @@ function applyFilters() {
 
   Object.keys(state.filters).forEach(filter => {
     if (filter !== 'type') { // type is a special case, and we've already filtered for that
-      // all other filters are of the same form (key name, array of filtered values), so we can use doFiltering to help us
+      // all other filters are of the same form (key name, array of terms we need to search for), so we can use doFiltering to help us
       breweries = doFiltering(filter, state.filters[filter].key, breweries)
     }
   })
