@@ -2,7 +2,6 @@
  * This solution scales to as many brewery types as required
  */
 
-
 const stateForm = document.querySelector('#select-state-form')
 const breweriesList = document.querySelector('#breweries-list')
 const filterByType = document.querySelector('#filter-by-type')
@@ -18,16 +17,39 @@ const phone = 'Phone:'
 const visit = 'Visit Website'
 
 const state = {
-  types: ['micro', 'regional', 'brewpub'],
+  types: [],
   breweries: {},
-  filterByType: '',
-  filterByName: '',
-  filterByCities: []
+  filters: {
+    type: '',
+    names: {
+      key: 'name',
+      values: []
+    },
+    cities: {
+      key: 'city',
+      values: []
+    }
+  }
 }
 
 function render() {
+  renderTypeOptions()
   renderBreweries()
   renderCityFilters()
+}
+
+function renderTypeOptions() {
+  filterByType.innerHTML = ''
+  const selectType =  document.createElement('option')
+  selectType.innerText = 'Select a type...'
+  filterByType.append(selectType)
+  state.types.forEach(type => {
+    const newType = document.createElement('option')
+    newType.value = type
+    newType.innerText = type
+
+    filterByType.append(newType)
+  })
 }
 
 function renderBreweries() {
@@ -55,10 +77,10 @@ function renderCityFilters() {
 
     input.addEventListener('change', event => {
       if (event.target.checked) {
-        state.filterByCities.push(city)
+        state.filters.cities.values.push(city)
       } else {
-        const newCities = state.filterByCities.filter(filterCity => filterCity !== city)
-        state.filterByCities = newCities
+        const newCities = state.filters.cities.filter(filterCity => filterCity !== city)
+        state.filters.cities.values = newCities
       }
 
       renderBreweries()
@@ -68,22 +90,36 @@ function renderCityFilters() {
   })
 }
 
+function doFiltering ( filterKey, breweryKey, breweries ) {
+  
+  if (state.filters[filterKey].values.length) {
+    breweries = breweries.filter(brewery => {
+      const breweryValue = brewery[breweryKey].toLowerCase();
+      return state.filters[filterKey].values.find((searchTerm) => {
+        const searchValue = searchTerm.toLowerCase();
+        return breweryValue.includes(searchValue);
+      });
+    })
+  }
+  
+  return breweries
+}
+
 function applyFilters() {
 
   let breweries
-  if (state.filterByType) {
-    breweries = state.breweries[state.filterByType]
+  if (state.filters.type) {
+    breweries = state.breweries[state.filters.type]
   } else {
     breweries = Object.keys(state.breweries).map(breweryType => state.breweries[breweryType]).flat()
   }
 
-  if (state.filterByName) {
-    breweries = breweries.filter(brewery => brewery.name.toLowerCase().includes(state.filterByName.toLowerCase()))
-  }
-
-  if (state.filterByCities.length !== 0) {
-    breweries = breweries.filter(brewery => state.filterByCities.includes(brewery.city))
-  }
+  Object.keys(state.filters).forEach(filter => {
+    if (filter !== 'type') { // type is a special case, and we've already filtered for that
+      // all other filters are of the same form (key name, array of filtered values), so we can use doFiltering to help us
+      breweries = doFiltering(filter, state.filters[filter].key, breweries)
+    }
+  })
 
   return breweries
 }
@@ -138,6 +174,7 @@ const addListeners = () => {
       .then(res => res.json())
       .then(data => {
 
+        state.types = [...new Set(data.map(brewery => brewery.brewery_type))] // unique types
         state.types.forEach(type => {
           state.breweries[type] = data.filter(brewery => brewery.brewery_type === type)
         })
@@ -148,21 +185,21 @@ const addListeners = () => {
 
   // drop down select options
   filterByType.addEventListener('change', event => {
-    state.filterByType = event.target.value
+    state.filters.type = event.target.value
 
     render()
   })
 
   // text input
   filterByName.addEventListener('input', event => {
-    state.filterByName = event.target.value
+    state.filters.names.values[0] = event.target.value
 
     render()
   })
 
   // checkbox
   filterByCityClearBtn.addEventListener('click', event => {
-    state.filterByCities = []
+    state.filters.cities.value = []
     filterByCityForm.reset()
 
     render()
