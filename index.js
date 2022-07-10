@@ -139,7 +139,7 @@ function renderPaging(breweries) {
   
   const pageEnd = Math.ceil(breweries.length / perPage)
 
-  pageNumber.innerText = `Viewing ${state.page} of ${pageEnd}`
+  pageNumber.innerText = `${state.page} of ${pageEnd}`
   
   const start = (state.page - 1) * perPage
   let end = (state.page) * perPage
@@ -152,7 +152,7 @@ function renderPaging(breweries) {
   }
   start === 0 ? prevPage.disabled = true : prevPage.disabled = false
   
-  console.log('end', state.page, end, breweries.length, start)
+  //console.log('end', state.page, end, breweries.length, start)
   breweries = breweries.slice(start, end)
   return breweries
 }
@@ -261,15 +261,6 @@ const addListeners = () => {
 
 }
 
-const doFetch = async (url, pageNumber) => {
-
-  const thisURL = `${url}?page=${pageNumber}&per_page=${perPage}`
-  //console.log('url', thisURL)
-  const result = await fetch(thisURL)
-  const data = await result.json()
-  return data
-}
-
 const typeFetchedData = (breweries) => {
   //console.log('all', breweries)
 
@@ -283,6 +274,15 @@ const typeFetchedData = (breweries) => {
 
   const needCitiesList = true
   render(needCitiesList)
+}
+
+const doFetch = async (url, pageNumber) => {
+
+  const thisURL = `${url}?page=${pageNumber}&per_page=${perPage}`
+  //console.log('url', thisURL)
+  const result = await fetch(thisURL)
+  const data = await result.json()
+  return data
 }
 
 const fetchData = async () => {

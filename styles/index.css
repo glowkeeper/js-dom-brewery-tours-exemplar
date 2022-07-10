@@ -228,3 +228,16 @@ article {
   text-decoration: none;
   font-weight: bold;
 }
+
+div.paging {
+  display: grid;
+  grid-template-columns: 100px 200px 100px;
+  height: 2rem;
+  width: 30%;
+  margin-bottom: 15px
+}
+
+div.paging #page-number {
+  text-align: center;
+}
+
